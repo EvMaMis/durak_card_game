@@ -5,7 +5,8 @@ public class Table {
         Hand yourHand = new Hand(testDeck.pullCards(6));
         Hand opponentsHead = new Hand(testDeck.pullCards(6));
 
-        yourHand.printHand();
+        Printer printer = new Printer();
+        printer.printCards(yourHand);
 
     }
 }
