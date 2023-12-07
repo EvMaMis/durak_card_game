@@ -17,13 +17,6 @@ public class Deck {
         }
     }
 
-    public void printCards() {
-        System.out.println(cards.size());
-        for(int i = 0; i < cards.size(); i++) {
-            System.out.println(cards.get(i));
-        }
-    }
-
     public void shuffleCards(int numberOfShuffle) {
         for(int i = 0; i < numberOfShuffle; i++) {
             int first = (int) (Math.random() * 36);
@@ -45,6 +38,10 @@ public class Deck {
         } else {
             return null;
         }
+    }
+
+    public void pushCard(Card cardtoPush) {
+        cards.add(0, cardtoPush);
     }
 
 }

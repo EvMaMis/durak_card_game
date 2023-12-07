@@ -11,9 +11,18 @@ public class Hand {
         this.cards = cards;
     }
 
-    public void printHand() {
-        for(Card card: cards) {
-            System.out.println(card);
+    public Card playCard(int index) {
+        try {
+            Card cardToReturn = cards.get(index);
+            cards.remove(index);
+            return cardToReturn;
+        } catch(IndexOutOfBoundsException e) {
+            System.out.println("You has wrote a wrong number");
+            return null;
         }
+    }
+
+    public void addCards(ArrayList<Card> cardstToAdd) {
+        cards.addAll(cardstToAdd);
     }
 }
