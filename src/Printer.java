@@ -24,11 +24,18 @@ public class Printer {
             i++;
         }
     }
-    public void printHand(Hand hand) {
+    public void printHand(Hand hand, String owner) {
+        System.out.println("----- " + owner + " Hand -----");
         for (Card card : hand.getCards()) {
             System.out.print(valuesChars.get(card.getValue()) + suitsChars.get(card.getSuit()) + "\t");
         }
         System.out.println();
+        if(owner.equals("Your")) {
+
+            for(int i = 1; i <= hand.getCards().size(); i++)
+                System.out.printf("%-4s", i);
+            System.out.println("<--- Controls \n");
+        }
     }
     public void printDeck(Deck deck) {
         System.out.println(deck.getCards().size());
