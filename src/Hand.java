@@ -33,8 +33,8 @@ public class Hand {
         return cardsToReturn;
     }
 
-    public void addCards(ArrayList<Card> cardstToAdd) {
-        cards.addAll(cardstToAdd);
+    public void addCards(ArrayList<Card> cardsToAdd) {
+        cards.addAll(cardsToAdd);
     }
 
     public Card opponentBeat(Card toBeat) throws IncapableCardException {
@@ -71,15 +71,6 @@ public class Hand {
         }
     }
 
-    private Card canBeatTrump(ArrayList<Card> trumps, Card toBeat) {
-        for(Card trump:trumps) {
-            if(trump.getValue().ordinal() > toBeat.getValue().ordinal()) {
-                return trump;
-            }
-        }
-        return new Card(Value.EIGHT, Suit.DIAMONDS);
-    }
-
     private Card getMin(ArrayList<Card> cardsToChoose) {
         if (!cardsToChoose.isEmpty()) {
             Card min = cardsToChoose.get(0);
@@ -99,5 +90,10 @@ public class Hand {
 
     public void takeAll() {
         System.out.println("I'll take it");
+//        cards.addAll(cardsToTake);
+    }
+
+    public Card opponentAttack() {
+        return getMin(cards);
     }
 }

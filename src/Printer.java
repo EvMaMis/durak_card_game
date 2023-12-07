@@ -43,4 +43,8 @@ public class Printer {
             System.out.println(deck.getCards().get(i));
         }
     }
+
+    public void printCard(Card card) {
+        System.out.print("-----\n|" + valuesChars.get(card.getValue()) + suitsChars.get(card.getSuit()) + " |\n-----\n");
+    }
 }

@@ -2,7 +2,8 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Game {
-    static private Deck currentDeck = new Deck();
+    static private final Deck currentDeck = new Deck();
+    static private boolean yourTurn = true;
 
     public static void main(String[] args) {
         startGame();
@@ -18,28 +19,35 @@ public class Game {
         Card trump = currentDeck.pullCards(1).get(0);
         trump.getSuit().setTrump(true);
         currentDeck.pushCard(trump);
-        System.out.println(trump.getSuit());
-
-        System.out.println(opponentsHand.getTrumps());
+        printer.printCard(trump);
 
         while (!yourHand.getCards().isEmpty() && !opponentsHand.getCards().isEmpty()) {
             printer.printHand(opponentsHand, "Opponent's");
             printer.printHand(yourHand, "Your");
-            System.out.println("Choose what to play");
-            try{
-                int toPlayIndex = scanner.nextInt();
-                Card playedCard = yourHand.playCard(toPlayIndex-1);
+            if(yourTurn) {
+                System.out.println("Choose what to play");
                 try {
-                    Card beat = opponentsHand.opponentBeat(playedCard);
-                    System.out.println("You have played");
-                    opponentsHand.playCard(opponentsHand.getCards().indexOf(beat));
-                    System.out.println("Bro beats");
-                } catch(IncapableCardException e) {
-                    opponentsHand.takeAll();
+                    int toPlayIndex = scanner.nextInt();
+                    Card playedCard = yourHand.playCard(toPlayIndex - 1);
+                    System.out.println("You played: ");
+                    printer.printCard(playedCard);
+                    try {
+                        Card beat = opponentsHand.opponentBeat(playedCard);
+                        System.out.println("Enemy played: ");
+                        printer.printCard(beat);
+                        opponentsHand.playCard(opponentsHand.getCards().indexOf(beat));
+                        yourTurn = !yourTurn;
+                    } catch (IncapableCardException e) {
+                        opponentsHand.takeAll();
+                    }
+                    checkTurn(yourHand, opponentsHand);
+                } catch (Exception e) {
+                    System.out.println();
                 }
-                checkTurn(yourHand, opponentsHand);
-            } catch (Exception e){
-                System.out.println();
+            } else {
+                Card toBeat = opponentsHand.opponentAttack();
+                printer.printCard(toBeat);
+                yourTurn = !yourTurn;
             }
         }
     }
