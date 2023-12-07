@@ -54,11 +54,6 @@ public class Opponent {
         }
     }
 
-    public void takeAll() {
-        System.out.println("I'll take it");
-//        cards.addAll(cardsToTake);
-    }
-
     public Card attack() {
         ArrayList<Card> possibleTurn = new ArrayList<Card>();
         for(Card card:hand.getCards()) {

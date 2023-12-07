@@ -22,6 +22,11 @@ public class Hand {
             throw new IndexOutOfBoundsException();
         }
     }
+    public void takeAll(ArrayList<Card> cardsToTake) {
+        System.out.println("I'll take it");
+        cards.addAll(cardsToTake);
+    }
+
 
     public ArrayList<Card> getTrumps() {
         ArrayList<Card> cardsToReturn = new ArrayList<Card>();
