@@ -80,6 +80,7 @@ public class Game {
             }
             checkTurn(yourHand, opponent.getHand());
         }
+        getResults(yourHand, opponent.getHand());
     }
 
     private static void checkTurn(Hand yourCards, Hand opponentCards) {
@@ -104,6 +105,16 @@ public class Game {
                     }
                 }
             }
+        }
+    }
+
+    private static void getResults(Hand yourHand, Hand oppHand) {
+        if(yourHand.getCards().isEmpty() && oppHand.getCards().isEmpty()) {
+            System.out.println("DRAW!");
+        } else if (yourHand.getCards().isEmpty() && !oppHand.getCards().isEmpty()) {
+            System.out.println("YOU WON!");
+        } else {
+            System.out.println("YOU LOSE!");
         }
     }
     private static boolean checkBeat(Card toBeat, Card beating) {
