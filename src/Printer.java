@@ -34,7 +34,7 @@ public class Printer {
 
             for(int i = 1; i <= hand.getCards().size(); i++)
                 System.out.printf("%-4s", i);
-            System.out.println("<--- Controls \n");
+            System.out.println(" 0 - Take cards <--- Controls \n");
         }
     }
     public void printDeck(Deck deck) {
@@ -42,5 +42,9 @@ public class Printer {
         for(int i = 0; i < deck.getCards().size(); i++) {
             System.out.println(deck.getCards().get(i));
         }
+    }
+
+    public void printCard(Card card) {
+        System.out.print("-----\n|" + valuesChars.get(card.getValue()) + suitsChars.get(card.getSuit()) + " |\n-----\n");
     }
 }

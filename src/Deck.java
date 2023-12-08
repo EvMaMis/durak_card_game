@@ -20,7 +20,7 @@ public class Deck {
     public void shuffleCards(int numberOfShuffle) {
         for(int i = 0; i < numberOfShuffle; i++) {
             int first = (int) (Math.random() * 36);
-            int second =(int) (Math.random() * 36);
+            int second = (int) (Math.random() * 36);
             Card temp;
             temp = cards.get(first);
             cards.set(first, cards.get(second));
