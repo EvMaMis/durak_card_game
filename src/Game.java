@@ -44,9 +44,9 @@ public class Game {
             printer.printHand(opponent.getHand(), "Opponent's");
             printer.printHand(yourHand, "Your");
             System.out.println("Choose what to play");
-            int toPlayIndex;
+
             try {
-                toPlayIndex = Integer.parseInt(scanner.nextLine());
+                int toPlayIndex = Integer.parseInt(scanner.nextLine());
                 if (toPlayIndex == 0){
                     correctBeat = true;
                 } else if(toPlayIndex <= yourHand.getCards().size() && toPlayIndex > 0){
@@ -89,8 +89,7 @@ public class Game {
 
         while (!correctBeat) {
             try {
-                int toPlayIndex = scanner.nextInt();
-                scanner.nextLine();
+                int toPlayIndex = Integer.parseInt(scanner.nextLine());
                 if (toPlayIndex == 0) {
                     yourHand.takeAll(table.getAll());
                     break;
@@ -114,7 +113,6 @@ public class Game {
 
     private static void checkTurn(Hand yourCards, Hand opponentCards) {
         table.resetTable();
-        System.out.println("++++++++" + currentDeck.getCards().size() + "+++++++");
         int youToPull = 6 - yourCards.getCards().size();
         int oppToPull = 6 - opponentCards.getCards().size();
         while (!currentDeck.getCards().isEmpty() && youToPull > 0 || oppToPull > 0) {
