@@ -1,69 +1,78 @@
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Game {
-    static private final Deck currentDeck = new Deck();
-    static private boolean yourTurn = true;
-    static private Opponent opponent;
-    static private Table table = new Table();
+    private final Table table;
+    private final Deck currentDeck;
+    private final Hand yourHand;
+    private final Opponent opponent;
+    private boolean yourTurn;
+    private final Scanner scanner;
+    private final Printer printer;
+
+
+    private Game(int numberOfShuffle) {
+        table = new Table();
+        currentDeck = new Deck();
+        currentDeck.shuffleCards(numberOfShuffle);
+        yourHand = new Hand(currentDeck.pullCards(6));
+        opponent = Opponent.getInstance(new Hand(currentDeck.pullCards(6)));
+        yourTurn = true;
+        scanner = new Scanner(System.in);
+        printer = new Printer();
+    }
 
     public static void main(String[] args) {
-        startGame();
+        Game game = new Game(100);
+        startGame(game);
+
     }
 
-    private static void startGame() {
-        currentDeck.shuffleCards(100);
-        Hand yourHand = new Hand(currentDeck.pullCards(6));
-        opponent = Opponent.getInstance(new Hand(currentDeck.pullCards(6)));
+    private static void startGame(Game game) {
 
-
-        Printer printer = new Printer();
-        Scanner scanner = new Scanner(System.in);
-
-        Card trump = currentDeck.pullCards(1).get(0);
+        Card trump = game.currentDeck.pullCards(1).get(0);
         trump.getSuit().setTrump(true);
 
-        currentDeck.pushCard(trump);
-        printer.printCard(trump);
+        game.currentDeck.pushCard(trump);
+        game.printer.printCard(trump);
 
-        while (!yourHand.getCards().isEmpty() && !opponent.getHand().getCards().isEmpty()) {
+        while (!game.yourHand.getCards().isEmpty() && !game.opponent.getHand().getCards().isEmpty()) {
 
-            if (yourTurn) {
-                yourTurn = yourTurnPlay(scanner, yourHand, printer);
+            if (game.yourTurn) {
+                game.yourTurn = yourTurnPlay(game);
             } else {
-                yourTurn = opponentTurnPlay(scanner, yourHand, printer);
+                game.yourTurn = opponentTurnPlay(game);
             }
-            checkTurn(yourHand, opponent.getHand());
+            checkTurn(game);
         }
-        getResults(yourHand, opponent.getHand());
+        getResults(game.yourHand, game.opponent.getHand());
     }
 
-    private static boolean yourTurnPlay(Scanner scanner, Hand yourHand, Printer printer) {
+    private static boolean yourTurnPlay(Game game) {
         boolean correctBeat = false;
         while (!correctBeat) {
-            printer.printHand(opponent.getHand(), "Opponent's");
-            printer.printHand(yourHand, "Your");
+            game.printer.printHand(game.opponent.getHand(), "Opponent's");
+            game.printer.printHand(game.yourHand, "Your");
             System.out.println("Choose what to play");
 
             try {
-                int toPlayIndex = Integer.parseInt(scanner.nextLine());
+                int toPlayIndex = Integer.parseInt(game.scanner.nextLine());
                 if (toPlayIndex == 0){
                     correctBeat = true;
-                } else if(toPlayIndex <= yourHand.getCards().size() && toPlayIndex > 0){
-                    Card playedCard = yourHand.getCards().get(toPlayIndex - 1);
-                    if (table.getCardsAttack().isEmpty() || canBeTossed(playedCard)) {
-                        yourHand.playCard(toPlayIndex - 1);
-                        table.getCardsAttack().add(playedCard);
+                } else if(toPlayIndex <= game.yourHand.getCards().size() && toPlayIndex > 0){
+                    Card playedCard = game.yourHand.getCards().get(toPlayIndex - 1);
+                    if (game.table.getCardsAttack().isEmpty() || canBeTossed(playedCard, game.table)) {
+                        game.yourHand.playCard(toPlayIndex - 1);
+                        game.table.getCardsAttack().add(playedCard);
                         System.out.println("You played: ");
-                        printer.printCard(playedCard);
+                        game.printer.printCard(playedCard);
                         try {
-                            Card beat = opponent.beat(playedCard);
+                            Card beat = game.opponent.beat(playedCard);
                             System.out.println("Enemy played: ");
-                            table.getCardsDefense().add(beat);
-                            printer.printCard(beat);
-                            opponent.getHand().playCard(opponent.getHand().getCards().indexOf(beat));
+                            game.table.getCardsDefense().add(beat);
+                            game.printer.printCard(beat);
+                            game.opponent.getHand().playCard(game.opponent.getHand().getCards().indexOf(beat));
                         } catch (IncapableCardException e) {
-                            opponent.getHand().takeAll(table.getAll());
+                            game.opponent.getHand().takeAll(game.table.getAll());
                             break;
                         }
                     } else {
@@ -77,29 +86,29 @@ public class Game {
         return !correctBeat;
     }
 
-    private static boolean opponentTurnPlay(Scanner scanner, Hand yourHand, Printer printer) {
+    private static boolean opponentTurnPlay(Game game) {
         boolean correctBeat = false;
-        printer.printHand(opponent.getHand(), "Opponent's");
-        printer.printHand(yourHand, "Your");
-        Card toBeat = opponent.attack();
-        table.getCardsAttack().add(toBeat);
-        opponent.getHand().getCards().remove(toBeat);
+        game.printer.printHand(game.opponent.getHand(), "Opponent's");
+        game.printer.printHand(game.yourHand, "Your");
+        Card toBeat = game.opponent.attack();
+        game.table.getCardsAttack().add(toBeat);
+        game.opponent.getHand().getCards().remove(toBeat);
         System.out.println("Enemy played: ");
-        printer.printCard(toBeat);
+        game.printer.printCard(toBeat);
 
         while (!correctBeat) {
             try {
-                int toPlayIndex = Integer.parseInt(scanner.nextLine());
+                int toPlayIndex = Integer.parseInt(game.scanner.nextLine());
                 if (toPlayIndex == 0) {
-                    yourHand.takeAll(table.getAll());
+                    game.yourHand.takeAll(game.table.getAll());
                     break;
                 } else {
-                    Card playedCard = yourHand.getCards().get(toPlayIndex - 1);
+                    Card playedCard = game.yourHand.getCards().get(toPlayIndex - 1);
                     System.out.println("You played: ");
-                    printer.printCard(playedCard);
+                    game.printer.printCard(playedCard);
                     if (checkBeat(toBeat, playedCard)) {
                         correctBeat = true;
-                        yourHand.playCard(toPlayIndex - 1);
+                        game.yourHand.playCard(toPlayIndex - 1);
                     } else {
                         System.out.println("You have played wrong card");
                     }
@@ -111,18 +120,17 @@ public class Game {
         return correctBeat;
     }
 
-    private static void checkTurn(Hand yourCards, Hand opponentCards) {
-        table.resetTable();
-        int youToPull = 6 - yourCards.getCards().size();
-        int oppToPull = 6 - opponentCards.getCards().size();
-        while (!currentDeck.getCards().isEmpty() && youToPull > 0 || oppToPull > 0) {
+    private static void checkTurn(Game game) {
+        game.table.resetTable();
+        int youToPull = 6 - game.yourHand.getCards().size();
+        int oppToPull = 6 - game.opponent.getHand().getCards().size();
+        while (!game.currentDeck.getCards().isEmpty() && youToPull > 0 || oppToPull > 0) {
             if (youToPull > 0) {
-                yourCards.addCards(currentDeck.pullCards(1));
+                game.yourHand.addCards(game.currentDeck.pullCards(1));
                 youToPull--;
             }
-            if (oppToPull > 0 && !currentDeck.getCards().isEmpty()) {
-                opponentCards.addCards(currentDeck.pullCards(1));
-                opponent.setHand(opponentCards);
+            if (oppToPull > 0 && !game.currentDeck.getCards().isEmpty()) {
+                game.opponent.getHand().addCards(game.currentDeck.pullCards(1));
                 oppToPull--;
             }
         }
@@ -147,7 +155,7 @@ public class Game {
         return false;
     }
 
-    private static boolean canBeTossed(Card cardToCheck) {
+    private static boolean canBeTossed(Card cardToCheck, Table table) {
         if(!table.getAll().isEmpty()) {
             for (Card card : table.getAll()) {
                 if (cardToCheck.getValue() == card.getValue())
