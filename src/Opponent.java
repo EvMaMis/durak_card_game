@@ -79,6 +79,5 @@ public class Opponent {
         } else {
             throw new IndexOutOfBoundsException();
         }
-
     }
 }

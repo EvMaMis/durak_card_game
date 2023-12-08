@@ -1,4 +1,3 @@
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -44,7 +43,36 @@ public class Printer {
         }
     }
 
+    public void printTable(Table table, Card trump) {
+        System.out.println("\n----------------------TABLE----------------------");
+        printPartOfTable(table.getCardsDefense());
+        printCard(trump);
+        printPartOfTable(table.getCardsAttack());
+        System.out.println("\n-------------------------------------------------");
+    }
+
+    private void printPartOfTable(ArrayList<Card> cards) {
+        System.out.println();
+        for(Card card:cards){
+            System.out.printf("%-8s", "_____");
+        }
+        System.out.println();
+        for(Card card:cards){
+            System.out.printf(" %3s    ", suitsChars.get(card.getSuit()) + valuesChars.get(card.getValue()));
+        }
+        System.out.println();
+        for(Card card:cards){
+            System.out.printf("%-8s", "-----");
+        }
+        System.out.println();
+    }
+
+
     public void printCard(Card card) {
-        System.out.print("-----\n|" + valuesChars.get(card.getValue()) + suitsChars.get(card.getSuit()) + " |\n-----\n");
+        System.out.printf("%50s","-----");
+        System.out.println();
+        System.out.printf("%50s", suitsChars.get(card.getSuit()) + valuesChars.get(card.getValue()));
+        System.out.println();
+        System.out.printf("%50s","-----");
     }
 }

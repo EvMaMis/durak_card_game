@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Game {
@@ -8,6 +9,7 @@ public class Game {
     private boolean yourTurn;
     private final Scanner scanner;
     private final Printer printer;
+    private static Card trump;
 
 
     private Game(int numberOfShuffle) {
@@ -24,16 +26,14 @@ public class Game {
     public static void main(String[] args) {
         Game game = new Game(100);
         startGame(game);
-
     }
 
     private static void startGame(Game game) {
 
-        Card trump = game.currentDeck.pullCards(1).get(0);
+        trump = game.currentDeck.pullCards(1).get(0);
         trump.getSuit().setTrump(true);
 
         game.currentDeck.pushCard(trump);
-        game.printer.printCard(trump);
 
         while (!game.yourHand.getCards().isEmpty() && !game.opponent.getHand().getCards().isEmpty()) {
 
@@ -51,6 +51,7 @@ public class Game {
         boolean correctBeat = false;
         while (!correctBeat) {
             game.printer.printHand(game.opponent.getHand(), "Opponent's");
+            game.printer.printTable(game.table, trump);
             game.printer.printHand(game.yourHand, "Your");
             System.out.println("Choose what to play");
 
@@ -62,15 +63,11 @@ public class Game {
                     Card playedCard = game.yourHand.getCards().get(toPlayIndex - 1);
                     if (game.table.getCardsAttack().isEmpty() || canBeTossed(playedCard, game.table)) {
                         game.yourHand.playCard(toPlayIndex - 1);
-                        game.table.getCardsAttack().add(playedCard);
-                        System.out.println("You played: ");
-                        game.printer.printCard(playedCard);
+                        game.table.addCard(playedCard, "Your");
                         try {
                             Card beat = game.opponent.beat(playedCard);
-                            System.out.println("Enemy played: ");
-                            game.table.getCardsDefense().add(beat);
-                            game.printer.printCard(beat);
                             game.opponent.getHand().playCard(game.opponent.getHand().getCards().indexOf(beat));
+                            game.table.addCard(beat, "Opponent");
                         } catch (IncapableCardException e) {
                             game.opponent.getHand().takeAll(game.table.getAll());
                             break;
@@ -88,13 +85,13 @@ public class Game {
 
     private static boolean opponentTurnPlay(Game game) {
         boolean correctBeat = false;
-        game.printer.printHand(game.opponent.getHand(), "Opponent's");
-        game.printer.printHand(game.yourHand, "Your");
         Card toBeat = game.opponent.attack();
-        game.table.getCardsAttack().add(toBeat);
         game.opponent.getHand().getCards().remove(toBeat);
-        System.out.println("Enemy played: ");
-        game.printer.printCard(toBeat);
+        game.table.addCard(toBeat, "Opponent");
+
+        game.printer.printHand(game.opponent.getHand(), "Opponent's");
+        game.printer.printTable(game.table, trump);
+        game.printer.printHand(game.yourHand, "Your");
 
         while (!correctBeat) {
             try {
@@ -104,11 +101,10 @@ public class Game {
                     break;
                 } else {
                     Card playedCard = game.yourHand.getCards().get(toPlayIndex - 1);
-                    System.out.println("You played: ");
-                    game.printer.printCard(playedCard);
                     if (checkBeat(toBeat, playedCard)) {
                         correctBeat = true;
                         game.yourHand.playCard(toPlayIndex - 1);
+                        game.table.addCard(playedCard, "Your");
                     } else {
                         System.out.println("You have played wrong card");
                     }
