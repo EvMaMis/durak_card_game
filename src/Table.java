@@ -2,47 +2,47 @@ import java.util.ArrayList;
 
 public class Table {
     private static Table instance;
-    private ArrayList<Card> cardsAttack;
-    private ArrayList<Card> cardsDefense;
+    private ArrayList<Card> yourCards;
+    private ArrayList<Card> opponentCards;
 
 
-    public ArrayList<Card> getCardsAttack() {
-        return cardsAttack;
+    public ArrayList<Card> getYourCards() {
+        return yourCards;
     }
 
-    public void setCardsAttack(ArrayList<Card> cardsAttack) {
-        this.cardsAttack = cardsAttack;
+    public void setYourCards(ArrayList<Card> yourCards) {
+        this.yourCards = yourCards;
     }
 
-    public ArrayList<Card> getCardsDefense() {
-        return cardsDefense;
+    public ArrayList<Card> getOpponentCards() {
+        return opponentCards;
     }
 
-    public void setCardsDefense(ArrayList<Card> cardsDefense) {
-        this.cardsDefense = cardsDefense;
+    public void setOpponentCards(ArrayList<Card> opponentCards) {
+        this.opponentCards = opponentCards;
     }
 
     public Table(){
-        cardsAttack = new ArrayList<Card>();
-        cardsDefense = new ArrayList<Card>();
+        yourCards = new ArrayList<Card>();
+        opponentCards = new ArrayList<Card>();
     }
 
     public ArrayList<Card> getAll() {
         ArrayList<Card> toGet = new ArrayList<Card>();
-        toGet.addAll(cardsDefense);
-        toGet.addAll(cardsAttack);
+        toGet.addAll(opponentCards);
+        toGet.addAll(yourCards);
         return toGet;
     }
 
     public void addCard(Card card, String side) {
         if(side.equals("Your"))
-            cardsAttack.add(card);
+            yourCards.add(card);
         else
-            cardsDefense.add(card);
+            opponentCards.add(card);
     }
 
     public void resetTable() {
-        cardsAttack.clear();
-        cardsDefense.clear();
+        yourCards.clear();
+        opponentCards.clear();
     }
 }

@@ -1,5 +1,5 @@
-import javax.swing.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Opponent {
     private static Opponent instance;
@@ -18,6 +18,10 @@ public class Opponent {
     }
     public void setHand(Hand hand) {
         this.hand = hand;
+    }
+
+    public void dropCard(Card cardToDrop) {
+        hand.getCards().remove(cardToDrop);
     }
 
     public Card beat(Card toBeat) throws IncapableCardException {
@@ -52,6 +56,20 @@ public class Opponent {
                 throw new IncapableCardException("Don't have card to beat");
             }
         }
+    }
+
+    public Card tossCard(Table table) throws IncapableCardException {
+        List<Value> possibleTosses = new ArrayList<>();
+        for(Card card: table.getAll()) {
+            if(!possibleTosses.contains(card.getValue()))
+                possibleTosses.add(card.getValue());
+        }
+        for(Card card: hand.getCards()) {
+            if(possibleTosses.contains(card.getValue())){
+                return card;
+            }
+        }
+        throw new IncapableCardException("Nothing to toss");
     }
 
     public Card attack() {
