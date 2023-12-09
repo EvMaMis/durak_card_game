@@ -27,26 +27,27 @@ public class Printer {
     }
     public void printHand(Hand hand, String owner) {
         System.out.println("----- " + owner + " Hand -----");
-//        if(owner.equals("Opponent's"))
-//            System.out.println("Cards available" + hand.getCards().size());
+        if(owner.equals("Opponent's"))
+            System.out.println("Cards available " + hand.getCards().size());
+        else {
 
-        for (Card card : hand.getCards()) {
-            System.out.print(valuesChars.get(card.getValue()) + suitsChars.get(card.getSuit()) + "\t");
+            for (Card card : hand.getCards()) {
+                System.out.print(valuesChars.get(card.getValue()) + suitsChars.get(card.getSuit()) + "\t");
+            }
+            System.out.println();
+            if (owner.equals("Your")) {
+                for (int i = 1; i <= hand.getCards().size(); i++)
+                    System.out.printf("%-4s", i);
+                System.out.println(ANSI_RED + " 0 - End turn " + ANSI_RESET + "<--- Controls \n");
+            }
         }
-        System.out.println();
-        if (owner.equals("Your")) {
-            for (int i = 1; i <= hand.getCards().size(); i++)
-                System.out.printf("%-4s", i);
-            System.out.println(ANSI_RED + " 0 - End turn " + ANSI_RESET + "<--- Controls \n");
-        }
-
     }
 
     public void printTable(Table table, Card trump, int cardsLeft) {
         System.out.println("\n----------------------TABLE----------------------");
-        printPartOfTable(table.getCardsDefense());
+        printPartOfTable(table.getOpponentCards());
         printCard(trump, cardsLeft);
-        printPartOfTable(table.getCardsAttack());
+        printPartOfTable(table.getYourCards());
         System.out.println("\n-------------------------------------------------");
     }
 
@@ -94,9 +95,9 @@ public class Printer {
         if(yourHand.isEmpty() && opponent.getHand().isEmpty()) {
             System.out.println("DRAW!");
         } else if (yourHand.isEmpty() && !opponent.getHand().isEmpty()) {
-            System.out.println("YOU WON!");
+            System.out.println(ANSI_GREEN + "YOU WON!" + ANSI_RESET);
         } else {
-            System.out.println("YOU LOSE!");
+            System.out.println(ANSI_RED + "YOU LOSE!" + ANSI_RESET);
         }
     }
 

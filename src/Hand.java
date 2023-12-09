@@ -1,4 +1,3 @@
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class Hand {
@@ -6,6 +5,10 @@ public class Hand {
 
     public ArrayList<Card> getCards() {
         return cards;
+    }
+
+    public int getSize() {
+        return cards.size();
     }
 
     public Hand(ArrayList<Card> cards) {
@@ -25,6 +28,16 @@ public class Hand {
             throw new IndexOutOfBoundsException();
         }
     }
+
+    public void playCard(Card card) {
+        try {
+            cards.remove(card);
+        } catch(Exception e) {
+            System.out.println("No such card");
+            e.printStackTrace();
+        }
+    }
+
     public void takeAll(ArrayList<Card> cardsToTake) {
         cards.addAll(cardsToTake);
     }

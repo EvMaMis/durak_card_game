@@ -48,13 +48,13 @@ public class Game {
             printer.printGame(table, opponent, yourHand, currentDeck, trump);
             try {
                 int toPlayIndex = Integer.parseInt(scanner.nextLine());
-                if(toPlayIndex > yourHand.getCards().size() || toPlayIndex < 0)
+                if(toPlayIndex > yourHand.getSize() || toPlayIndex < 0)
                     throw new NumberFormatException();
                 if (toPlayIndex == 0) {
                     correctBeat = true;
                 } else {
                     Card playedCard = yourHand.getCards().get(toPlayIndex - 1);
-                    if (table.getCardsAttack().isEmpty() || canBeTossed(playedCard)) {
+                    if (table.getYourCards().isEmpty() || canBeTossed(playedCard)) {
                         yourHand.playCard(toPlayIndex - 1);
                         table.addCard(playedCard, "Your");
                         try {
@@ -79,30 +79,45 @@ public class Game {
 
     private boolean opponentTurnPlay() {
         boolean correctBeat = false;
-        Card toBeat = opponent.attack();
-        opponent.getHand().getCards().remove(toBeat);
-        table.addCard(toBeat, "Opponent");
-        printer.printGame(table, opponent, yourHand, currentDeck, trump);
+        boolean giveUp = false;
+        Card toBeat;
         while (!correctBeat) {
-            try {
-                int toPlayIndex = Integer.parseInt(scanner.nextLine());
-                if (toPlayIndex == 0) {
-                    yourHand.takeAll(table.getAll());
-                    printer.printTake();
-                    break;
-                } else {
-                    Card playedCard = yourHand.getCards().get(toPlayIndex - 1);
-                    if (checkBeat(toBeat, playedCard)) {
+            if (table.getYourCards().isEmpty()) {
+                toBeat = opponent.attack();
+            } else {
+                try {
+                    toBeat = opponent.tossCard(table);
+                } catch (IncapableCardException e) {
+                    if(!giveUp)
                         correctBeat = true;
-                        yourHand.playCard(toPlayIndex - 1);
-                        table.addCard(playedCard, "Your");
-                    } else {
-                        printer.printException("You've played wrong card");
+                    else {
+                        yourHand.takeAll(table.getAll());
+                        printer.printTake();
                     }
+                    break;
                 }
-                table.resetTable();
-            } catch (Exception e) {
-                printer.printException("Wrong value");
+            }
+            opponent.getHand().playCard(toBeat);
+            table.addCard(toBeat, "Opponent");
+            printer.printGame(table, opponent, yourHand, currentDeck, trump);
+            while (!giveUp) {
+                try {
+                    int toPlayIndex = Integer.parseInt(scanner.nextLine());
+                    if (toPlayIndex == 0) {
+                        giveUp = true;
+                    } else {
+                        Card playedCard = yourHand.getCards().get(toPlayIndex - 1);
+                        if (checkBeat(toBeat, playedCard)) {
+                            yourHand.playCard(toPlayIndex - 1);
+                            table.addCard(playedCard, "Your");
+                            break;
+                        } else {
+                            printer.printException("You've played wrong card");
+                        }
+                    }
+                } catch (Exception e ) {
+                    printer.printException("Wrong value");
+                }
             }
         }
         return correctBeat;
@@ -114,8 +129,8 @@ public class Game {
 
     private void checkTurn() {
         table.resetTable();
-        int youToPull = Math.max((6 - yourHand.getCards().size()), 0);
-        int oppToPull = Math.max(6 - opponent.getHand().getCards().size(), 0);
+        int youToPull = Math.max((6 - yourHand.getSize()), 0);
+        int oppToPull = Math.max(6 - opponent.getHand().getSize(), 0);
         while (!currentDeck.getCards().isEmpty()) {
             if (youToPull > 0 ) {
                 yourHand.addCards(currentDeck.pullCards(1));
