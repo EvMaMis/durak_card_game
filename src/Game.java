@@ -39,18 +39,20 @@ public class Game {
             }
             checkTurn();
         }
-        getResults();
+        printer.printResults(yourHand, opponent);
     }
 
     private boolean yourTurnPlay() {
         boolean correctBeat = false;
         while (!correctBeat) {
-            printer.printGame(opponent, table, trump, yourHand);
+            printer.printGame(table, opponent, yourHand, currentDeck, trump);
             try {
                 int toPlayIndex = Integer.parseInt(scanner.nextLine());
-                if (toPlayIndex == 0){
+                if(toPlayIndex > yourHand.getCards().size() || toPlayIndex < 0)
+                    throw new NumberFormatException();
+                if (toPlayIndex == 0) {
                     correctBeat = true;
-                } else if(toPlayIndex <= yourHand.getCards().size() && toPlayIndex > 0){
+                } else {
                     Card playedCard = yourHand.getCards().get(toPlayIndex - 1);
                     if (table.getCardsAttack().isEmpty() || canBeTossed(playedCard)) {
                         yourHand.playCard(toPlayIndex - 1);
@@ -61,14 +63,15 @@ public class Game {
                             table.addCard(beat, "Opponent");
                         } catch (IncapableCardException e) {
                             opponent.getHand().takeAll(table.getAll());
+                            printer.printTake();
                             break;
                         }
                     } else {
-                        System.out.println("You can't play this card");
+                        printer.printException("You can't toss this card");
                     }
                 }
             } catch(NumberFormatException e) {
-                System.out.println("It's not a number");
+                printer.printException("Wrong value");
             }
         }
         return !correctBeat;
@@ -79,12 +82,13 @@ public class Game {
         Card toBeat = opponent.attack();
         opponent.getHand().getCards().remove(toBeat);
         table.addCard(toBeat, "Opponent");
-        printer.printGame(opponent, table, trump, yourHand);
+        printer.printGame(table, opponent, yourHand, currentDeck, trump);
         while (!correctBeat) {
             try {
                 int toPlayIndex = Integer.parseInt(scanner.nextLine());
                 if (toPlayIndex == 0) {
                     yourHand.takeAll(table.getAll());
+                    printer.printTake();
                     break;
                 } else {
                     Card playedCard = yourHand.getCards().get(toPlayIndex - 1);
@@ -93,12 +97,12 @@ public class Game {
                         yourHand.playCard(toPlayIndex - 1);
                         table.addCard(playedCard, "Your");
                     } else {
-                        System.out.println("You have played wrong card");
+                        printer.printException("You've played wrong card");
                     }
                 }
                 table.resetTable();
             } catch (Exception e) {
-                System.out.println("Wrong value");
+                printer.printException("Wrong value");
             }
         }
         return correctBeat;
@@ -125,16 +129,6 @@ public class Game {
                 break;
         }
 
-    }
-
-    private void getResults() {
-        if(yourHand.isEmpty() && opponent.getHand().isEmpty()) {
-            System.out.println("DRAW!");
-        } else if (yourHand.isEmpty() && !opponent.getHand().isEmpty()) {
-            System.out.println("YOU WON!");
-        } else {
-            System.out.println("YOU LOSE!");
-        }
     }
     private boolean checkBeat(Card toBeat, Card beating) {
         if(toBeat.getSuit() == beating.getSuit()) {

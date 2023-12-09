@@ -6,6 +6,9 @@ public class Deck {
     public ArrayList<Card> getCards() {
         return cards;
     }
+    public int getSize() {
+        return cards.size();
+    }
     public Deck() {
         cards = new ArrayList<Card>();
         Value[] values = Value.values();

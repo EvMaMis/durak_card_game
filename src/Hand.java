@@ -26,7 +26,6 @@ public class Hand {
         }
     }
     public void takeAll(ArrayList<Card> cardsToTake) {
-        System.out.println("CARDS HAVE BEEN TAKEN");
         cards.addAll(cardsToTake);
     }
 
