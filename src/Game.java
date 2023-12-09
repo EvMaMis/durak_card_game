@@ -9,8 +9,7 @@ public class Game {
     private boolean yourTurn;
     private final Scanner scanner;
     private final Printer printer;
-    private static Card trump;
-
+    private final Card trump;
 
     private Game(int numberOfShuffle) {
         table = new Table();
@@ -21,55 +20,47 @@ public class Game {
         yourTurn = true;
         scanner = new Scanner(System.in);
         printer = new Printer();
+        trump = currentDeck.pullCards(1).get(0);
+        trump.getSuit().setTrump(true);
+        currentDeck.pushCard(trump);
     }
 
     public static void main(String[] args) {
         Game game = new Game(100);
-        startGame(game);
+        game.startGame();
     }
 
-    private static void startGame(Game game) {
-
-        trump = game.currentDeck.pullCards(1).get(0);
-        trump.getSuit().setTrump(true);
-
-        game.currentDeck.pushCard(trump);
-
-        while (!game.yourHand.getCards().isEmpty() && !game.opponent.getHand().getCards().isEmpty()) {
-
-            if (game.yourTurn) {
-                game.yourTurn = yourTurnPlay(game);
+    private void startGame() {
+        while (!checkFinished()) {
+            if (yourTurn) {
+                yourTurn = yourTurnPlay();
             } else {
-                game.yourTurn = opponentTurnPlay(game);
+                yourTurn = opponentTurnPlay();
             }
-            checkTurn(game);
+            checkTurn();
         }
-        getResults(game.yourHand, game.opponent.getHand());
+        getResults();
     }
 
-    private static boolean yourTurnPlay(Game game) {
+    private boolean yourTurnPlay() {
         boolean correctBeat = false;
         while (!correctBeat) {
-            game.printer.printHand(game.opponent.getHand(), "Opponent's");
-            game.printer.printTable(game.table, trump);
-            game.printer.printHand(game.yourHand, "Your");
-            System.out.println("Choose what to play");
-
+            printer.printGame(opponent, table, trump, yourHand);
             try {
-                int toPlayIndex = Integer.parseInt(game.scanner.nextLine());
+                int toPlayIndex = Integer.parseInt(scanner.nextLine());
                 if (toPlayIndex == 0){
                     correctBeat = true;
-                } else if(toPlayIndex <= game.yourHand.getCards().size() && toPlayIndex > 0){
-                    Card playedCard = game.yourHand.getCards().get(toPlayIndex - 1);
-                    if (game.table.getCardsAttack().isEmpty() || canBeTossed(playedCard, game.table)) {
-                        game.yourHand.playCard(toPlayIndex - 1);
-                        game.table.addCard(playedCard, "Your");
+                } else if(toPlayIndex <= yourHand.getCards().size() && toPlayIndex > 0){
+                    Card playedCard = yourHand.getCards().get(toPlayIndex - 1);
+                    if (table.getCardsAttack().isEmpty() || canBeTossed(playedCard)) {
+                        yourHand.playCard(toPlayIndex - 1);
+                        table.addCard(playedCard, "Your");
                         try {
-                            Card beat = game.opponent.beat(playedCard);
-                            game.opponent.getHand().playCard(game.opponent.getHand().getCards().indexOf(beat));
-                            game.table.addCard(beat, "Opponent");
+                            Card beat = opponent.beat(playedCard);
+                            opponent.getHand().playCard(opponent.getHand().getCards().indexOf(beat));
+                            table.addCard(beat, "Opponent");
                         } catch (IncapableCardException e) {
-                            game.opponent.getHand().takeAll(game.table.getAll());
+                            opponent.getHand().takeAll(table.getAll());
                             break;
                         }
                     } else {
@@ -83,66 +74,69 @@ public class Game {
         return !correctBeat;
     }
 
-    private static boolean opponentTurnPlay(Game game) {
+    private boolean opponentTurnPlay() {
         boolean correctBeat = false;
-        Card toBeat = game.opponent.attack();
-        game.opponent.getHand().getCards().remove(toBeat);
-        game.table.addCard(toBeat, "Opponent");
-
-        game.printer.printHand(game.opponent.getHand(), "Opponent's");
-        game.printer.printTable(game.table, trump);
-        game.printer.printHand(game.yourHand, "Your");
-
+        Card toBeat = opponent.attack();
+        opponent.getHand().getCards().remove(toBeat);
+        table.addCard(toBeat, "Opponent");
+        printer.printGame(opponent, table, trump, yourHand);
         while (!correctBeat) {
             try {
-                int toPlayIndex = Integer.parseInt(game.scanner.nextLine());
+                int toPlayIndex = Integer.parseInt(scanner.nextLine());
                 if (toPlayIndex == 0) {
-                    game.yourHand.takeAll(game.table.getAll());
+                    yourHand.takeAll(table.getAll());
                     break;
                 } else {
-                    Card playedCard = game.yourHand.getCards().get(toPlayIndex - 1);
+                    Card playedCard = yourHand.getCards().get(toPlayIndex - 1);
                     if (checkBeat(toBeat, playedCard)) {
                         correctBeat = true;
-                        game.yourHand.playCard(toPlayIndex - 1);
-                        game.table.addCard(playedCard, "Your");
+                        yourHand.playCard(toPlayIndex - 1);
+                        table.addCard(playedCard, "Your");
                     } else {
                         System.out.println("You have played wrong card");
                     }
                 }
-            } catch(Exception e) {
+                table.resetTable();
+            } catch (Exception e) {
                 System.out.println("Wrong value");
             }
         }
         return correctBeat;
     }
 
-    private static void checkTurn(Game game) {
-        game.table.resetTable();
-        int youToPull = 6 - game.yourHand.getCards().size();
-        int oppToPull = 6 - game.opponent.getHand().getCards().size();
-        while (!game.currentDeck.getCards().isEmpty() && youToPull > 0 || oppToPull > 0) {
-            if (youToPull > 0) {
-                game.yourHand.addCards(game.currentDeck.pullCards(1));
+    private boolean checkFinished() {
+        return opponent.getHand().isEmpty() || yourHand.isEmpty();
+    }
+
+    private void checkTurn() {
+        table.resetTable();
+        int youToPull = Math.max((6 - yourHand.getCards().size()), 0);
+        int oppToPull = Math.max(6 - opponent.getHand().getCards().size(), 0);
+        while (!currentDeck.getCards().isEmpty()) {
+            if (youToPull > 0 ) {
+                yourHand.addCards(currentDeck.pullCards(1));
                 youToPull--;
             }
-            if (oppToPull > 0 && !game.currentDeck.getCards().isEmpty()) {
-                game.opponent.getHand().addCards(game.currentDeck.pullCards(1));
+            if (oppToPull > 0 && !currentDeck.getCards().isEmpty()) {
+                opponent.getHand().addCards(currentDeck.pullCards(1));
                 oppToPull--;
             }
+            if (oppToPull == 0 && youToPull == 0)
+                break;
         }
 
     }
 
-    private static void getResults(Hand yourHand, Hand oppHand) {
-        if(yourHand.getCards().isEmpty() && oppHand.getCards().isEmpty()) {
+    private void getResults() {
+        if(yourHand.isEmpty() && opponent.getHand().isEmpty()) {
             System.out.println("DRAW!");
-        } else if (yourHand.getCards().isEmpty() && !oppHand.getCards().isEmpty()) {
+        } else if (yourHand.isEmpty() && !opponent.getHand().isEmpty()) {
             System.out.println("YOU WON!");
         } else {
             System.out.println("YOU LOSE!");
         }
     }
-    private static boolean checkBeat(Card toBeat, Card beating) {
+    private boolean checkBeat(Card toBeat, Card beating) {
         if(toBeat.getSuit() == beating.getSuit()) {
             return toBeat.getValue().ordinal() < beating.getValue().ordinal();
         } else if (!toBeat.getSuit().getTrump() && beating.getSuit().getTrump()) {
@@ -151,7 +145,7 @@ public class Game {
         return false;
     }
 
-    private static boolean canBeTossed(Card cardToCheck, Table table) {
+    private boolean canBeTossed(Card cardToCheck) {
         if(!table.getAll().isEmpty()) {
             for (Card card : table.getAll()) {
                 if (cardToCheck.getValue() == card.getValue())

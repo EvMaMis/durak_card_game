@@ -12,6 +12,9 @@ public class Hand {
         this.cards = cards;
     }
 
+    public boolean isEmpty() {
+        return cards.isEmpty();
+    }
     public Card playCard(int index) {
         try {
             Card cardToReturn = cards.get(index);
@@ -23,7 +26,7 @@ public class Hand {
         }
     }
     public void takeAll(ArrayList<Card> cardsToTake) {
-        System.out.println("I'll take it");
+        System.out.println("CARDS HAVE BEEN TAKEN");
         cards.addAll(cardsToTake);
     }
 

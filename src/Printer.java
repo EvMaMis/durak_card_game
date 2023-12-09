@@ -75,4 +75,11 @@ public class Printer {
         System.out.println();
         System.out.printf("%50s","-----");
     }
+
+    public void printGame(Opponent opponent, Table table, Card trump, Hand yourHand) {
+        printHand(opponent.getHand(), "Opponent's");
+        printTable(table, trump);
+        printHand(yourHand, "Your");
+        System.out.println("Choose what to play");
+    }
 }
