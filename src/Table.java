@@ -1,8 +1,10 @@
 import java.util.ArrayList;
 
 public class Table {
+    private static Table instance;
     private ArrayList<Card> cardsAttack;
     private ArrayList<Card> cardsDefense;
+
 
     public ArrayList<Card> getCardsAttack() {
         return cardsAttack;
