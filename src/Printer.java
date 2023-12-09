@@ -85,6 +85,7 @@ public class Printer {
     }
 
     public void printGame(Table table, Opponent opponent, Hand yourHand, Deck deck, Card trump) {
+        System.out.print("\033\143");
         printHand(opponent.getHand(), "Opponent's");
         printTable(table, trump, deck.getSize());
         printHand(yourHand, "Your");

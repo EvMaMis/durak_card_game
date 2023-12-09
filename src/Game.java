@@ -82,7 +82,7 @@ public class Game {
         boolean giveUp = false;
         Card toBeat;
         while (!correctBeat) {
-            if (table.getYourCards().isEmpty()) {
+            if (table.getAll().isEmpty()) {
                 toBeat = opponent.attack();
             } else {
                 try {
