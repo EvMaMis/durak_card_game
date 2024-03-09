@@ -1,5 +1,4 @@
 # DURAK
-# This project will be transfered on PHP with visuals, so this work on Java won't continue getting updates
 ## Durak is a traditional Russian card game that is popular in many post-Soviet states. 
 You can read more about the rules and history of the game here: https://en.wikipedia.org/wiki/Durak.
 The project is console version of the popular card game, providing opponent, console output of all that's happening in the game and identical game rules.
